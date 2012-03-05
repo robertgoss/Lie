@@ -13,12 +13,18 @@ import Root
 import Data.Ratio
 import Control.Monad
 
---Hunit Tests
-
-
---QuickCheck Properties
+--Useful
 sameDim a b = dim a == dim b
 notZero = not . isZero
+
+--Hunit Tests
+case_zero = isZero (root [0,0,0,0,0]) @?= True
+csae_notZero = notZero (root [1,0,0,0]) @?= False
+
+case_reflect1 = (root [3%10,1%5,-7%5,2%5]) @?= 
+                reflect (root [1,-1,2,3]) (root [1%2,0,-1,1]) 
+
+--QuickCheck Properties
 
 
 --Mul Unit
