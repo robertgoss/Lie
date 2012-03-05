@@ -2,12 +2,12 @@ module Root(
             Root,
             root,
             dot,
-            add,
-            mul,
             isZero,
             lengthSq,
             dim,
-            reflect
+            reflect,
+            rootSum,
+            coeff
            ) where
 
 import Data.Ratio
@@ -19,7 +19,10 @@ newtype Root = Root [Ratio Int]
     deriving (Eq,Show)
 
 root :: [Ratio Int] -> Root
-root r = Root r
+root r = Root $ positive' r
+
+coeff :: Root -> [Ratio Int]
+coeff (Root r) = r
 
 infixl 8 `dot`
 dot :: Root -> Root -> Ratio Int
@@ -27,6 +30,10 @@ dot (Root r1) (Root r2) = sum $ map (\(x,y)->x*y) $ zip r1 r2
 
 lengthSq :: Root -> Ratio Int
 lengthSq (Root r) = sum $ map (\x->x*x) r
+
+infixl 6 `rootSum`
+rootSum :: Root -> Root -> Root
+rootSum r s = positive (r `add` s)
 
 infixl 6 `add`
 add :: Root -> Root -> Root
@@ -41,11 +48,21 @@ isZero r = 0 == lengthSq r
 
 
 reflect :: Root -> Root -> Root
-reflect plane root = root `add` (scale `mul` plane)
+reflect plane root = positive $ root `add` (scale `mul` plane)
     where scale = - 2 * (plane `dot` root) / (lengthSq plane)
 
 dim :: Root -> Int
 dim (Root r) = length $ r
+
+positive' :: [Ratio Int] -> [Ratio Int]
+positive' [] = []
+positive' (r:rs)
+    | r > 0 = (r:rs)
+    | r < 0 = map ((-1)*) (r:rs)
+    | otherwise = 0:(positive' rs)
+
+positive :: Root -> Root
+positive (Root r) = Root (positive' r)
 
 --Own root generator used as [Ratio Int] Creates roots too low dim and
 --  large in value (overflow problems)
@@ -54,7 +71,7 @@ box :: a -> [a]
 box a = [a]
 
 extend :: Ratio Int -> Root -> Root
-extend w (Root r) = Root (w:r)
+extend w (Root r) = root (w:r)
 
 instance Arbitrary Root where
   arbitrary = sized root'

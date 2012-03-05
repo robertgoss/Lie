@@ -16,6 +16,7 @@ import Control.Monad
 --Useful
 sameDim a b = dim a == dim b
 notZero = not . isZero
+isPositive r = r == (root $ coeff r)
 
 --Hunit Tests
 case_zero = isZero (root [0,0,0,0,0]) @?= True
@@ -28,14 +29,20 @@ case_reflect1 = (root [3%10,1%5,-7%5,2%5]) @?=
 
 
 --Mul Unit
-prop_mulUnit r = (1 `mul` r) == r
-    where types = r::Root
 
-prop_reflect p r = cond ==> r == (reflect p $ reflect p r)
+prop_reflect_doub p r = cond ==> r == (reflect p $ reflect p r)
     where types = (r::Root,p::Root)
           cond = (notZero p) && (sameDim p r)
 
+prop_root_pos r = isPositive r
+    where types = r::Root
 
+prop_add_pos a b = isPositive (a `rootSum` b)
+    where types = (a::Root,b::Root)
+
+prop_reflect_pos p r = cond ==> isPositive $ reflect p r
+    where types = (r::Root,p::Root)
+          cond = (notZero p) && (sameDim p r)
 
 --Generated Main
 main = $(defaultMainGenerator)
