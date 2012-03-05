@@ -1,0 +1,17 @@
+name: Lie
+version: 0.1
+license: GPL2
+author: Robert Goss
+category: Maths
+cabal-version: >=1.6
+synopsis: A package for some basic operations on Lie Algebras
+library
+  ghc-options: -Wall
+  build-depends:
+    base >=4.3
+  exposed-modules:
+    Lie.Root
+    Lie.RootSystem
+    Lie.SemiSimple
+    Lie.HomSpace
+  
