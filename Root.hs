@@ -16,7 +16,7 @@ import Test.QuickCheck
 import Control.Monad
 
 newtype Root = Root [Ratio Int]
-    deriving (Eq,Show)
+    deriving (Eq,Show,Ord)
 
 root :: [Ratio Int] -> Root
 root r = Root $ positive' r
