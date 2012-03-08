@@ -15,6 +15,8 @@ import Data.Ratio
 import Test.QuickCheck
 import Control.Monad
 
+import Data.List(intersperse)
+
 newtype Root = Root [Ratio Int]
     deriving (Eq,Ord)
 
@@ -82,5 +84,12 @@ instance Arbitrary Root where
             empty = return $ Root []
             wieghts = [a%b | a<-[-3..3], b<-[1..3]]
 
+simple :: Ratio Int -> String
+simple q
+       | b==1 = show a
+       | otherwise = (show a)++"/"++(show b)
+       where a = numerator q
+             b = denominator q
+
 instance Show Root where
-    show (Root r) = show r
+    show (Root r) = "[" ++ (concat $ intersperse "," $ map simple r) ++ "]"

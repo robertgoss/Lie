@@ -1,10 +1,12 @@
 module RootSystem (
                    RootSystem,
                    simpleRoots,
+                   rootSystem,
                    orbit,
                    roots,
                    action,
-                   generate
+                   generate,
+                   RootSystem.intersect
                   ) where
 
 import Root
@@ -45,6 +47,9 @@ generate' rs cur add = generate' rs union added
 
 generate :: [Root] -> RootSystem
 generate rs = RootSystem $ generate' rs [] rs
+
+intersect :: RootSystem -> RootSystem -> RootSystem
+intersect (RootSystem xs) (RootSystem ys) = (RootSystem $ SortedLists.intersect xs ys)
 
 instance Arbitrary RootSystem where
     arbitrary = liftM rootSystem arbitrary

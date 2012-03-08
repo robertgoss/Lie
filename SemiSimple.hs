@@ -2,7 +2,8 @@ module SemiSimple(
                   SemiSimple(..),
                   rank,
                   classify,
-                  rootSystem
+                  SemiSimple.rootSystem,
+                  stdForm
                  ) where
 
 import Data.Ratio
@@ -14,6 +15,8 @@ import Graph
 
 import Test.QuickCheck(Arbitrary,sized,oneof,arbitrary,Gen)
 import Control.Monad
+
+import Data.List(sort)
 
 data SemiSimple = Product [SemiSimple]
                 | A Int
@@ -79,7 +82,7 @@ rootSystem' E7 = [[1%2,1%2,-1%2,-1%2,-1%2,-1%2,-1%2,-1%2],
                   [0,0,1,-1,0,0,0,0],
                   [0,0,0,1,-1,0,0,0],
                   [0,0,0,0,1,-1,0,0],
-                  [0,0,0,0,0,1,-1,0]]
+                  [0,0,0,0,0,0,1,1]]
 rootSystem' E8 = [[1%2,1%2,-1%2,-1%2,-1%2,-1%2,-1%2,-1%2],
                   [0,1,1,0,0,0,0,0],
                   [0,1,-1,0,0,0,0,0],
@@ -88,6 +91,27 @@ rootSystem' E8 = [[1%2,1%2,-1%2,-1%2,-1%2,-1%2,-1%2,-1%2],
                   [0,0,0,0,1,-1,0,0],
                   [0,0,0,0,0,1,-1,0],
                   [0,0,0,0,0,0,1,-1]]
+
+stdForm' :: [SemiSimple] -> [SemiSimple]
+stdForm' ((Product [x]):xs) = stdForm' (x:xs)
+stdForm' ((Product []):xs) = stdForm' xs
+stdForm' ((Product ys):xs) = (stdForm' ys)++(stdForm' xs)
+stdForm' ((B 1):xs) = (A 1):(stdForm' xs)
+stdForm' ((C 1):xs) = (A 1):(stdForm' xs)
+stdForm' ((D 1):xs) = (A 1):(stdForm' xs)
+stdForm' ((D 2):xs) = (A 1):(A 1):(stdForm' xs)
+stdForm' ((C 2):xs) = (B 2):(stdForm' xs)
+stdForm' ((A 3):xs) = (D 3):(stdForm' xs)
+stdForm' (x:xs) = x:(stdForm' xs)
+stdForm' [] = []
+
+box [s] = s
+box s = Product s
+
+stdForm :: SemiSimple -> SemiSimple
+stdForm (Product s) = box $sort $ stdForm' s
+stdForm s = s
+
 
 rootSystem :: SemiSimple -> RootSystem
 rootSystem s = generate $ map root $ rootSystem' s

@@ -1,5 +1,6 @@
 module SortedLists(
-                   mergeSplit
+                   mergeSplit,
+                   intersect
                   ) where
 
 mergeSplit' :: (Eq a,Ord a) => [a] -> [a] -> ([a],[a]) -> ([a],[a])
@@ -12,3 +13,11 @@ mergeSplit' (o:old) (n:new) (union,added)
 
 mergeSplit :: (Eq a,Ord a) => [a] -> [a] -> ([a],[a])
 mergeSplit new old = mergeSplit' old new ([],[])
+
+intersect :: (Eq a,Ord a)  => [a] -> [a] -> [a]
+intersect [] ys = []
+intersect xs [] = []
+intersect (x:xs) (y:ys)
+    | x==y = x:(intersect xs ys)
+    | x<y = intersect xs (y:ys)
+    | otherwise = intersect (x:xs) ys
