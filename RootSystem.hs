@@ -8,7 +8,7 @@ module RootSystem (
                   ) where
 
 import Root
-import Data.List(group,sort)
+import Data.List(group,sort,intersperse)
 
 import Test.QuickCheck
 import Control.Monad
@@ -16,7 +16,7 @@ import Control.Monad
 import SortedLists
 
 newtype RootSystem = RootSystem [Root]
-    deriving (Eq,Show,Ord)
+    deriving (Eq,Ord)
 
 remdup a = map head $ group $ sort a
 
@@ -48,3 +48,6 @@ generate rs = RootSystem $ generate' rs [] rs
 
 instance Arbitrary RootSystem where
     arbitrary = liftM rootSystem arbitrary
+
+instance Show RootSystem where
+    show (RootSystem rs) = concat $ intersperse "\n" $ map show $ rs

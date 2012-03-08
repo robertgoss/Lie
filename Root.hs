@@ -16,7 +16,7 @@ import Test.QuickCheck
 import Control.Monad
 
 newtype Root = Root [Ratio Int]
-    deriving (Eq,Show,Ord)
+    deriving (Eq,Ord)
 
 root :: [Ratio Int] -> Root
 root r = Root $ positive' r
@@ -81,3 +81,6 @@ instance Arbitrary Root where
             single = oneof $ map (\w->liftM (extend w) empty) wieghts
             empty = return $ Root []
             wieghts = [a%b | a<-[-3..3], b<-[1..3]]
+
+instance Show Root where
+    show (Root r) = show r
