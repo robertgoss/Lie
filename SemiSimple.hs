@@ -41,7 +41,7 @@ rank F4 = 4
 rank G2 = 2
 
 zeros :: Int -> [Ratio Int]
-zeros n = take n $ repeat 0
+zeros n = replicate n 0
 
 minrep :: SemiSimple -> Int
 minrep (Product xs) = sum $ map minrep xs
@@ -57,17 +57,17 @@ rootSystem' (Product xs) = rootSystem'' [] xs
     where rootSystem'' :: [[Ratio Int]] -> [SemiSimple] -> [[Ratio Int]]
           rootSystem'' [] [] = []
           rootSystem'' [] (ss:sss) = rootSystem'' (rootSystem' ss) sss
-          rootSystem'' (r:rest) left = padded:(rootSystem'' rest left)
+          rootSystem'' (r:rest) left = padded:rootSystem'' rest left
               where pad = minrep (Product left)
                     rep = length r
                     pleft = zeros (total - pad - rep)
                     pright = zeros pad
                     padded = pleft++r++pright
           total = minrep (Product xs)
-rootSystem' (A n) = [(zeros i)++[1,-1]++(zeros (n-(i+1))) | i<-[0..(n-1)]]
-rootSystem' (B n) = (1:(zeros (n-1))):(rootSystem' (A (n-1)))
-rootSystem' (C n) = (2:(zeros (n-1))):(rootSystem' (A (n-1)))
-rootSystem' (D n) = (1:1:(zeros (n-2))):(rootSystem' (A (n-1)))
+rootSystem' (A n) = [zeros i++[1,-1]++zeros (n-(i+1)) | i<-[0..(n-1)]]
+rootSystem' (B n) = (1:zeros (n-1)):rootSystem' (A (n-1))
+rootSystem' (C n) = (2:zeros (n-1)):rootSystem' (A (n-1))
+rootSystem' (D n) = (1:1:zeros (n-2)):rootSystem' (A (n-1))
 rootSystem' G2 = [[0,1,-1],[1,-2,1]]
 rootSystem' F4 = [[1%2,-1%2,-1%2,-1%2],[0,1,0,0],[0,1,-1,0],[0,0,1,-1]]
 rootSystem' E6 = [[1%2,1%2,-1%2,-1%2,-1%2,-1%2,-1%2,-1%2],
@@ -93,16 +93,16 @@ rootSystem' E8 = [[1%2,1%2,-1%2,-1%2,-1%2,-1%2,-1%2,-1%2],
                   [0,0,0,0,0,0,1,-1]]
 
 stdForm' :: [SemiSimple] -> [SemiSimple]
-stdForm' ((Product [x]):xs) = stdForm' (x:xs)
-stdForm' ((Product []):xs) = stdForm' xs
-stdForm' ((Product ys):xs) = (stdForm' ys)++(stdForm' xs)
-stdForm' ((B 1):xs) = (A 1):(stdForm' xs)
-stdForm' ((C 1):xs) = (A 1):(stdForm' xs)
-stdForm' ((D 1):xs) = (A 1):(stdForm' xs)
-stdForm' ((D 2):xs) = (A 1):(A 1):(stdForm' xs)
-stdForm' ((C 2):xs) = (B 2):(stdForm' xs)
-stdForm' ((A 3):xs) = (D 3):(stdForm' xs)
-stdForm' (x:xs) = x:(stdForm' xs)
+stdForm' (Product [x]:xs) = stdForm' x:xs
+stdForm' (Product []:xs) = stdForm' xs
+stdForm' (Product y:xs) = stdForm' ys ++ stdForm' xs
+stdForm' (B 1:xs) = A 1:stdForm' xs
+stdForm' (C 1:xs) = A 1:stdForm' xs
+stdForm' (D 1:xs) = A 1:stdForm' xs
+stdForm' (D 2:xs) = A 1:A 1:stdForm' xs
+stdForm' (C 2:xs) = B 2:stdForm' xs
+stdForm' (A 3:xs) = D 3:stdForm' xs
+stdForm' (x:xs) = x:stdForm' xs
 stdForm' [] = []
 
 box [s] = s
@@ -118,7 +118,7 @@ rootSystem s = generate $ map root $ rootSystem' s
 
 edges :: [Root] -> [(Root,Root)]
 edges rs = filter (\(r1,r2)->0/=dot r1 r2) es
-    where es = filter (\(r1,r2)->r1<r2) [(r1,r2)|r1<-rs, r2<-rs]
+    where es = filter (uncurry (<)) [(r1,r2)|r1<-rs, r2<-rs]
 
 long :: [Root] -> Int
 long xs
@@ -144,14 +144,9 @@ classify'' rs
           n_roots = length $ roots $ generate rs
           dim = rank + 2 * n_roots
           l = long rs
-          triple = (maximum val)==3
-          val = map length $ map (\r->filter (\e->r==fst e||r==snd e) es) rs
+          triple = maximum val==3
+          val = map length .(\r->filter (\e->r==fst e||r==snd e) es) rs
           es = edges rs
-
-val xs = map length $ map (\r->filter (\e->r==fst e||r==snd e) es) rs
-      where
-          es = edges rs
-          rs = map root xs
 
 classify' :: [Root] -> SemiSimple
 classify' rs = Product $ map classify'' (conn_comp (edges rs) rs)
@@ -166,12 +161,12 @@ classify rs = classify' $ simpleRoots rs
 instance Arbitrary SemiSimple where
   arbitrary = sized root'
       where root' 0 = single
-            root' n = oneof $ (map prod [1,2,2,2,2,3])++(sings 15)
-            prod n = liftM (\a->Product (take n a)) arbitrary
-            sings n = take n $ repeat single
+            root' n = oneof $ map prod [1,2,2,2,2,3]++sings 15
+            prod n = liftM (Product . take n) arbitrary
+            sings n = replicate n single
             single = oneof $ map return basics
-            basics = (map A [1..10])++
-                     (map B [1..10])++
-                     (map C [1..10])++
-                     (map D [1..10])++
+            basics = map A [1..10]++
+                     map B [1..10]++
+                     map C [1..10]++
+                     map D [1..10]++
                      [E6,E7,E8,F4,G2]

@@ -28,7 +28,7 @@ coeff (Root r) = r
 
 infixl 8 `dot`
 dot :: Root -> Root -> Ratio Int
-dot (Root r1) (Root r2) = sum $ map (\(x,y)->x*y) $ zip r1 r2
+dot (Root r1) (Root r2) = sum $ zipWith (*) r1 r2
 
 lengthSq :: Root -> Ratio Int
 lengthSq (Root r) = sum $ map (\x->x*x) r
@@ -39,7 +39,7 @@ rootSum r s = positive (r `add` s)
 
 infixl 6 `add`
 add :: Root -> Root -> Root
-add (Root r1) (Root r2) = Root $ map (\(x,y)->x+y) $ zip r1 r2
+add (Root r1) (Root r2) = Root ZipWith (+) r1 r2
 
 infixl 7 `mul`
 mul :: Ratio Int -> Root -> Root
@@ -51,17 +51,17 @@ isZero r = 0 == lengthSq r
 
 reflect :: Root -> Root -> Root
 reflect plane root = positive $ root `add` (scale `mul` plane)
-    where scale = - 2 * (plane `dot` root) / (lengthSq plane)
+    where scale = - 2 * (plane `dot` root) / lengthSq plane
 
 dim :: Root -> Int
-dim (Root r) = length $ r
+dim (Root r) = length r
 
 positive' :: [Ratio Int] -> [Ratio Int]
 positive' [] = []
 positive' (r:rs)
-    | r > 0 = (r:rs)
-    | r < 0 = map ((-1)*) (r:rs)
-    | otherwise = 0:(positive' rs)
+    | r > 0 = r:rs
+    | r < 0 = map ((-1)*) r:rs
+    | otherwise = 0: positive' rs
 
 positive :: Root -> Root
 positive (Root r) = Root (positive' r)
@@ -87,9 +87,9 @@ instance Arbitrary Root where
 simple :: Ratio Int -> String
 simple q
        | b==1 = show a
-       | otherwise = (show a)++"/"++(show b)
+       | otherwise = show a ++ "/"++ show b
        where a = numerator q
              b = denominator q
 
 instance Show Root where
-    show (Root r) = "[" ++ (concat $ intersperse "," $ map simple r) ++ "]"
+    show (Root r) = "[" ++ concat intercalate ( "," $ map simple r) ++ "]"

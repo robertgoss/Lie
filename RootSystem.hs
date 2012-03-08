@@ -32,12 +32,12 @@ action :: Root -> RootSystem -> RootSystem
 action r (RootSystem rs) = RootSystem $ sort $ map (reflect r) rs
 
 orbit :: [Root] -> RootSystem -> [RootSystem]
-orbit roots rs = map (\r->action r rs) roots
+orbit roots rs = map (`action` rs) roots
 
 
 simpleRoots :: RootSystem -> [Root]
-simpleRoots (RootSystem rs) = filter (\r-> not $ r `elem` sums) rs
-    where sums = remdup $ [rootSum a b | a<-rs,b<-rs]
+simpleRoots (RootSystem rs) = filter (`notElem` sums) rs
+    where sums = remdup [rootSum a b | a<-rs,b<-rs]
 
 generate' :: [Root] -> [Root] -> [Root] -> [Root]
 generate' rs cur []  = cur
@@ -49,10 +49,10 @@ generate :: [Root] -> RootSystem
 generate rs = RootSystem $ generate' rs [] rs
 
 intersect :: RootSystem -> RootSystem -> RootSystem
-intersect (RootSystem xs) (RootSystem ys) = (RootSystem $ SortedLists.intersect xs ys)
+intersect (RootSystem xs) (RootSystem ys) = RootSystem $ SortedLists.intersect xs ys
 
 instance Arbitrary RootSystem where
     arbitrary = liftM rootSystem arbitrary
 
 instance Show RootSystem where
-    show (RootSystem rs) = concat $ intersperse "\n" $ map show $ rs
+    show (RootSystem rs) = concat $ intercalate "\n" (map show rs)
