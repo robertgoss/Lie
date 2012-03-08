@@ -15,7 +15,7 @@ import Data.Ratio
 import Test.QuickCheck
 import Control.Monad
 
-import Data.List(intersperse)
+import Data.List(intersperse,intercalate)
 
 newtype Root = Root [Ratio Int]
     deriving (Eq,Ord)
@@ -39,7 +39,7 @@ rootSum r s = positive (r `add` s)
 
 infixl 6 `add`
 add :: Root -> Root -> Root
-add (Root r1) (Root r2) = Root ZipWith (+) r1 r2
+add (Root r1) (Root r2) = Root $ zipWith (+) r1 r2
 
 infixl 7 `mul`
 mul :: Ratio Int -> Root -> Root
@@ -60,7 +60,7 @@ positive' :: [Ratio Int] -> [Ratio Int]
 positive' [] = []
 positive' (r:rs)
     | r > 0 = r:rs
-    | r < 0 = map ((-1)*) r:rs
+    | r < 0 = map ((-1)*) (r:rs)
     | otherwise = 0: positive' rs
 
 positive :: Root -> Root
@@ -92,4 +92,4 @@ simple q
              b = denominator q
 
 instance Show Root where
-    show (Root r) = "[" ++ concat intercalate ( "," $ map simple r) ++ "]"
+    show (Root r) = "[" ++ (concat.intersperse"," $ map simple r) ++ "]"

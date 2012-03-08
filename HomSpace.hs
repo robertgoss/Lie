@@ -17,9 +17,10 @@ type RootSubSystem = RootSystem
 
 orbits'' :: [Root] -> [RootSystem] -> [RootSystem] -> [RootSystem]
 orbits'' rs cur [] = cur
-orbits'' rs cur add =  orbits'' rs union added
+orbits'' rs cur add =  new -- orbits'' rs union added
     where new = remdup $ foldl1' (++) $ map (orbit rs) add
           (union,added) = mergeSplit new cur
+
 
 orbits' :: [Root] -> RootSystem -> [RootSystem]
 orbits' rs h = orbits'' rs [] [h]

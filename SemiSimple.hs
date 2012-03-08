@@ -93,9 +93,9 @@ rootSystem' E8 = [[1%2,1%2,-1%2,-1%2,-1%2,-1%2,-1%2,-1%2],
                   [0,0,0,0,0,0,1,-1]]
 
 stdForm' :: [SemiSimple] -> [SemiSimple]
-stdForm' (Product [x]:xs) = stdForm' x:xs
+stdForm' (Product [x]:xs) = stdForm' [x] ++ stdForm' xs
 stdForm' (Product []:xs) = stdForm' xs
-stdForm' (Product y:xs) = stdForm' ys ++ stdForm' xs
+stdForm' (Product y:xs) = stdForm' y ++ stdForm' xs
 stdForm' (B 1:xs) = A 1:stdForm' xs
 stdForm' (C 1:xs) = A 1:stdForm' xs
 stdForm' (D 1:xs) = A 1:stdForm' xs
@@ -109,8 +109,8 @@ box [s] = s
 box s = Product s
 
 stdForm :: SemiSimple -> SemiSimple
-stdForm (Product s) = box $sort $ stdForm' s
-stdForm s = s
+stdForm (Product s) = box $ sort $ stdForm' s
+stdForm s = box $ stdForm' [s]
 
 
 rootSystem :: SemiSimple -> RootSystem
@@ -145,7 +145,7 @@ classify'' rs
           dim = rank + 2 * n_roots
           l = long rs
           triple = maximum val==3
-          val = map length .(\r->filter (\e->r==fst e||r==snd e) es) rs
+          val = map (length.(\r->filter (\e->r==fst e||r==snd e) es)) rs
           es = edges rs
 
 classify' :: [Root] -> SemiSimple

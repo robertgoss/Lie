@@ -55,4 +55,4 @@ instance Arbitrary RootSystem where
     arbitrary = liftM rootSystem arbitrary
 
 instance Show RootSystem where
-    show (RootSystem rs) = concat $ intercalate "\n" (map show rs)
+    show (RootSystem rs) = concat $ intersperse "\n" (map show rs)

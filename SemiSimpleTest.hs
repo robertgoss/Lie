@@ -25,7 +25,7 @@ eq x y = (stdForm x) == (stdForm y)
 
 --QuickCheck Properties
 --Added speed testing precond 
-prop_classify s = (rank s) < 23 ==> eq s (classify $ rootSystem s)
+prop_classify s = (rank s) < 23 ==> eq s (classify $ SemiSimple.rootSystem s)
     where types = s::SemiSimple
 
 prop_basic s = True
