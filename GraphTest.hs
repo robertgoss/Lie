@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module RootTest where
+module GraphTest(tests) where
 
 --Test Framework code
 import Test.Framework.TH
@@ -29,3 +29,4 @@ case_1 = (map sort $ conn_comp es vs) @?= res
 
 --Generated Main
 main = $(defaultMainGenerator)
+tests = $(testGroupGenerator)

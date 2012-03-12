@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module RootTest where
+module SortedListsTest(tests) where
 
 --Test Framework code
 import Test.Framework.TH
@@ -48,3 +48,4 @@ prop_mergeSplit_added2 a b = disjoint added b
 
 --Generated Main
 main = $(defaultMainGenerator)
+tests = $(testGroupGenerator)

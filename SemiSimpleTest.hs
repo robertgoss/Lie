@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module RootTest where
+module SemiSimpleTest(tests) where
 
 --Test Framework code
 import Test.Framework.TH
@@ -33,5 +33,7 @@ prop_basic s = True
 
 
 
+
 --Generated Main
 main = $(defaultMainGenerator)
+tests = $(testGroupGenerator)

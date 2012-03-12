@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module RootTest where
+module RootSystemTest(tests) where
 
 --Test Framework code
 import Test.Framework.TH
@@ -29,3 +29,4 @@ prop_reduced rs = reduced rs
 
 --Generated Main
 main = $(defaultMainGenerator)
+tests = $(testGroupGenerator)

@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module RootTest where
+module RootTest(tests) where
 
 --Test Framework code
 import Test.Framework.TH
@@ -46,3 +46,4 @@ prop_reflect_pos p r = cond ==> isPositive $ reflect p r
 
 --Generated Main
 main = $(defaultMainGenerator)
+tests = $(testGroupGenerator)
