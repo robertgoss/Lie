@@ -7,6 +7,9 @@ module Root(
             dim,
             reflect,
             rootSum,
+            restrict,
+            orthcomp,
+            orthbasis,
             coeff
            ) where
 
@@ -48,10 +51,31 @@ mul s (Root r) = Root $ map (s*) r
 isZero :: Root -> Bool
 isZero r = 0 == lengthSq r
 
+zeros n = replicate n 0
+
+
+orthbasis :: [Root] -> [Root]
+orthbasis xs = filter (not . isZero) (orthbasis' xs)
+    where orthbasis' xs = foldr (\x ys->red x ys:ys) [] xs
+          red z zs = foldr restrict' z zs
+
+orthcomp :: [Root] -> [Root]
+orthcomp rs = filter ((not . isZero)) rBasis
+    where rBasis = map (restrict rs) basis
+          basis = map root $ [zeros (i-1) ++ [1] ++ zeros (dim - i) | i<-[1..dim]]
+          dim = length $ coeff $ head rs
+
+restrict'  :: Root -> Root -> Root
+restrict' plane root = positive $ root `add` (scale `mul` plane)
+    where scale = - (plane `dot` root) / lengthSq plane
+
+restrict :: [Root] -> Root -> Root
+restrict res r = foldr restrict' r (orthbasis res)
 
 reflect :: Root -> Root -> Root
 reflect plane root = positive $ root `add` (scale `mul` plane)
     where scale = - 2 * (plane `dot` root) / lengthSq plane
+
 
 dim :: Root -> Int
 dim (Root r) = length r

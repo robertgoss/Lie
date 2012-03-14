@@ -22,8 +22,8 @@ newtype RootSystem = RootSystem [Root]
 
 remdup a = map head $ group $ sort a
 
-rootSystem :: [Root] -> RootSystem
-rootSystem rs = RootSystem $ remdup rs
+rootSystem :: [Root] -> [Root] -> RootSystem
+rootSystem rs res = RootSystem $ remdup $ map (restrict res) rs
 
 roots :: RootSystem -> [Root]
 roots (RootSystem rs) = rs
@@ -49,10 +49,14 @@ generate :: [Root] -> RootSystem
 generate rs = RootSystem $ generate' rs [] rs
 
 intersect :: RootSystem -> RootSystem -> RootSystem
-intersect (RootSystem xs) (RootSystem ys) = RootSystem $ SortedLists.intersect xs ys
+intersect (RootSystem xs) (RootSystem ys) = RootSystem $ SortedLists.intersect rxs rys
+    where rxs = remdup $ map (restrict sxs) xs
+          sxs = orthcomp xs
+          rys = remdup $ map (restrict sys) ys
+          sys = orthcomp ys
 
 instance Arbitrary RootSystem where
-    arbitrary = liftM rootSystem arbitrary
+    arbitrary = liftM2 rootSystem arbitrary arbitrary
 
 instance Show RootSystem where
     show (RootSystem rs) = concat $ intersperse "\n" (map show rs)
